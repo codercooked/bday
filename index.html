@@ -1419,7 +1419,7 @@ function onYouTubeIframeAPIReady() {
   player = new YT.Player('yt-player', {
     videoId: 'aJOTlE1K90k', // Maroon 5 - Girls Like You
     playerVars: {
-      'autoplay': 0,
+      'autoplay': 1,
       'controls': 0,
       'disablekb': 1,
       'fs': 0,
@@ -1436,24 +1436,7 @@ function onYouTubeIframeAPIReady() {
 
 function onPlayerReady(event) {
   event.target.setVolume(50); // Set to 50% (mid volume) as requested
-  
-  // Try to play immediately (if browser policy allows it)
   event.target.playVideo();
-  
-  // Auto-play on first click/touchstart/scroll if blocked initially by browser
-  const startPlaying = () => {
-    if (player && typeof player.playVideo === 'function') {
-      player.playVideo();
-      // Remove listeners once active
-      document.removeEventListener('click', startPlaying);
-      document.removeEventListener('touchstart', startPlaying);
-      document.removeEventListener('scroll', startPlaying);
-    }
-  };
-  
-  document.addEventListener('click', startPlaying);
-  document.addEventListener('touchstart', startPlaying);
-  document.addEventListener('scroll', startPlaying);
 }
 
 </script>
