@@ -596,55 +596,6 @@ body{
   }
 }
 
-/* ─── MUSIC BUTTON ─── */
-.music-btn {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 9999;
-  background: var(--paper);
-  border: 1.5px solid var(--blush);
-  padding: 10px 18px;
-  border-radius: 50px;
-  font-family: 'Caveat', cursive;
-  font-size: 1.25rem;
-  color: var(--rose);
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(212,84,122,0.15);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-}
-.music-btn:hover {
-  background: var(--rose);
-  color: white;
-  transform: translateY(-2px) scale(1.05);
-}
-.music-btn:active {
-  transform: translateY(0) scale(0.98);
-}
-.music-btn .icon {
-  font-size: 1.1rem;
-  animation: musicPulse 1.2s infinite ease-in-out alternate;
-  animation-play-state: paused;
-}
-.music-btn.playing .icon {
-  animation-play-state: running;
-}
-@keyframes musicPulse {
-  0% { transform: scale(0.9) rotate(-5deg); }
-  100% { transform: scale(1.1) rotate(5deg); }
-}
-@media(max-width: 600px) {
-  .music-btn {
-    bottom: 16px;
-    right: 16px;
-    padding: 8px 14px;
-    font-size: 1.1rem;
-  }
-}
-
 /* ─── BACKGROUND MEMORY REEL ─── */
 #hero-bg-photos{
   position:fixed;top:0;left:0;width:100%;height:100%;
@@ -799,11 +750,6 @@ video.hero-bg-photo.visible{opacity:0.3}
 </head>
 <body>
 
-<!-- FLOATING MUSIC BUTTON -->
-<button id="music-btn" class="music-btn" onclick="toggleMusic()">
-  <span class="icon">🎵</span>
-  <span id="music-text">play music</span>
-</button>
 
 <!-- HIDDEN YOUTUBE PLAYER CONTAINER -->
 <div id="yt-player" style="position: absolute; width: 0; height: 0; left: -9999px; top: -9999px; visibility: hidden; pointer-events: none;"></div>
@@ -1468,7 +1414,6 @@ var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
 var player;
-var isMusicPlaying = false;
 
 function onYouTubeIframeAPIReady() {
   player = new YT.Player('yt-player', {
@@ -1490,28 +1435,25 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerReady(event) {
-  event.target.setVolume(80);
-}
-
-function toggleMusic() {
-  const btn = document.getElementById('music-btn');
-  const txt = document.getElementById('music-text');
+  event.target.setVolume(50); // Set to 50% (mid volume) as requested
   
-  if (!player || typeof player.playVideo !== 'function') {
-    return;
-  }
-
-  if (!isMusicPlaying) {
-    player.playVideo();
-    isMusicPlaying = true;
-    btn.classList.add('playing');
-    txt.textContent = 'pause music';
-  } else {
-    player.pauseVideo();
-    isMusicPlaying = false;
-    btn.classList.remove('playing');
-    txt.textContent = 'play music';
-  }
+  // Try to play immediately (if browser policy allows it)
+  event.target.playVideo();
+  
+  // Auto-play on first click/touchstart/scroll if blocked initially by browser
+  const startPlaying = () => {
+    if (player && typeof player.playVideo === 'function') {
+      player.playVideo();
+      // Remove listeners once active
+      document.removeEventListener('click', startPlaying);
+      document.removeEventListener('touchstart', startPlaying);
+      document.removeEventListener('scroll', startPlaying);
+    }
+  };
+  
+  document.addEventListener('click', startPlaying);
+  document.addEventListener('touchstart', startPlaying);
+  document.addEventListener('scroll', startPlaying);
 }
 
 </script>
